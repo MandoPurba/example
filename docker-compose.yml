@@ -1,0 +1,65 @@
+# =====================================================================
+# Maya - orkestrasi 3 service + PostgreSQL
+#
+# Pakai HOST NETWORKING supaya semua konsisten "localhost" (persis .env),
+# karena NEXT_PUBLIC_API_URL dipakai di browser DAN di server Next.
+# => Jalankan di Linux / WSL2 / VPS (Docker Desktop Windows: aktifkan
+#    "Host networking" di Settings, atau gunakan backend WSL2).
+#
+# Cara pakai:
+#   docker compose up -d --build
+#   (backend otomatis migrate + seed saat pertama kali)
+#
+# PENTING: pastikan port host 3000/8001/8000/5432 belum dipakai proses lain
+# (mis. Postgres lokal di 5432 -> matikan dulu, atau ubah konfigurasi).
+# =====================================================================
+
+services:
+  db:
+    image: postgres:16
+    network_mode: host
+    environment:
+      # HARUS sama dengan DATABASE_URL di backend_js_app_absensi/.env
+      POSTGRES_USER: absensi
+      POSTGRES_PASSWORD: absensi
+      POSTGRES_DB: absensi
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U absensi -d absensi"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  py:
+    build: ./backend_py_app_absensi
+    network_mode: host
+    restart: unless-stopped
+
+  backend_js:
+    build: ./backend_js_app_absensi
+    network_mode: host
+    env_file:
+      - ./backend_js_app_absensi/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend_app_absensi
+      args:
+        # NEXT_PUBLIC_* di-inline saat build (dipakai browser)
+        NEXT_PUBLIC_API_URL: http://localhost:8001
+        NEXT_PUBLIC_BACKEND_URL: http://localhost:8001
+    network_mode: host
+    env_file:
+      - ./frontend_app_absensi/.env
+    depends_on:
+      - backend_js
+    restart: unless-stopped
+
+volumes:
+  pgdata:

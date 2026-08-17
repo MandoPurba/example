@@ -1,0 +1,27 @@
+# ---- Dependencies ----
+**/node_modules/
+
+# ---- Next.js ----
+**/.next/
+**/out/
+
+# ---- Python ----
+**/.venv/
+**/__pycache__/
+*.pyc
+
+# ---- Runtime uploads (jaga foldernya, abaikan isinya) ----
+backend_js_app_absensi/uploads/*
+!backend_js_app_absensi/uploads/.gitkeep
+
+# ---- Logs & OS ----
+*.log
+npm-debug.log*
+.DS_Store
+
+# ---- Docker volume lokal (kalau ada) ----
+pgdata/
+
+# CATATAN: file .env SENGAJA TIDAK diabaikan supaya proyek langsung jalan
+# setelah clone (demo). Jika repo GitHub-nya PUBLIC, ubah ke PRIVATE karena
+# .env berisi secret (AUTH_SECRET, JWT_SECRET, kredensial DB).

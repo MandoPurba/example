@@ -1,25 +1,24 @@
 # =====================================================================
-# Maya - orkestrasi 3 service + PostgreSQL
+# Maya - orkestrasi 3 service + PostgreSQL (BRIDGE network "tunel")
 #
-# Pakai HOST NETWORKING supaya semua konsisten "localhost" (persis .env),
-# karena NEXT_PUBLIC_API_URL dipakai di browser DAN di server Next.
-# => Jalankan di Linux / WSL2 / VPS (Docker Desktop Windows: aktifkan
-#    "Host networking" di Settings, atau gunakan backend WSL2).
+# Bridge network: antar-container pakai NAMA SERVICE (bukan localhost).
+#   db:5432, py:8000, backend_js:8001, frontend:3000
 #
-# Cara pakai:
-#   docker compose up -d --build
-#   (backend otomatis migrate + seed saat pertama kali)
+# URL koneksi di-set di `environment:` (menimpa .env) supaya:
+#   1) benar untuk bridge (service name), dan
+#   2) tidak bergantung .env terbaca (mengatasi "injected env 0").
 #
-# PENTING: pastikan port host 3000/8001/8000/5432 belum dipakai proses lain
-# (mis. Postgres lokal di 5432 -> matikan dulu, atau ubah konfigurasi).
+# Cloudflare Tunnel: jalankan cloudflared di network "tunel" ini agar bisa
+# menjangkau service via nama (mis. http://frontend:3000). Lihat catatan
+# di bawah untuk NEXT_PUBLIC_API_URL / NEXTAUTH_URL (URL publik tunnel).
 # =====================================================================
 
 services:
   db:
     image: postgres:16
-    network_mode: host
+    networks:
+      - tunel
     environment:
-      # HARUS sama dengan DATABASE_URL di backend_js_app_absensi/.env
       POSTGRES_USER: absensi
       POSTGRES_PASSWORD: absensi
       POSTGRES_DB: absensi
@@ -34,14 +33,20 @@ services:
 
   py:
     build: ./backend_py_app_absensi
-    network_mode: host
+    networks:
+      - tunel
     restart: unless-stopped
 
   backend_js:
     build: ./backend_js_app_absensi
-    network_mode: host
+    networks:
+      - tunel
     env_file:
       - ./backend_js_app_absensi/.env
+    environment:
+      # Override .env -> pakai NAMA SERVICE (wajib untuk bridge network)
+      DATABASE_URL: postgres://absensi:absensi@db:5432/absensi
+      URL_PYTHON_SERVER: http://py:8000
     depends_on:
       db:
         condition: service_healthy
@@ -51,15 +56,33 @@ services:
     build:
       context: ./frontend_app_absensi
       args:
-        # NEXT_PUBLIC_* di-inline saat build (dipakai browser)
-        NEXT_PUBLIC_API_URL: http://localhost:8001
-        NEXT_PUBLIC_BACKEND_URL: http://localhost:8001
-    network_mode: host
+        # Kini NEXT_PUBLIC_API_URL HANYA dipakai server-side (route /api proxy),
+        # jadi pakai NAMA SERVICE internal. Browser tidak lagi memakainya langsung
+        # (semua lewat /api same-origin) -> cukup tunnel FRONTEND saja.
+        NEXT_PUBLIC_API_URL: http://backend_js:8001
+        NEXT_PUBLIC_BACKEND_URL: http://backend_js:8001
+    networks:
+      - tunel
+    ports:
+      # Hanya frontend yang diekspos ke host -> cloudflared di host bisa
+      # menjangkau: cloudflared tunnel --url http://localhost:3000
+      # (backend_js/py/db tetap internal, tidak perlu tunnel).
+      - "3000:3000"
     env_file:
       - ./frontend_app_absensi/.env
+    environment:
+      # authorize() memanggil ${NEXTAUTH_URL}/api/auth/sign-in dari SERVER (self),
+      # jadi localhost:3000 sudah benar. Redirect ke browser ditangani otomatis
+      # oleh trustHost:true (ambil host dari tunnel). Kalau login/redirect bermasalah,
+      # baru set ke URL publik tunnel, mis. https://app-xxx.trycloudflare.com
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
     depends_on:
       - backend_js
     restart: unless-stopped
+
+networks:
+  tunel:
+    external: true
 
 volumes:
   pgdata:

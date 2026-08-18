@@ -103,7 +103,7 @@ export default function TablePermission() {
                 setLoading(true);
 
                 const res = await fetch(
-                    `${NEXT_PUBLIC_API_URL}/permissions?search=${debouncedSearch}&page=${currentPage}&limit=${itemsPerPage}`,
+                    `/api/permissions?search=${debouncedSearch}&page=${currentPage}&limit=${itemsPerPage}`,
                     {
                         signal: controller.signal,
                     }

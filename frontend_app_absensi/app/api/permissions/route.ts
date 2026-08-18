@@ -19,7 +19,7 @@ export const GET = auth(async (...args: [any, { params: any; }]) => {
         // }
 
         const response = await axios.get(
-            `${NEXT_PUBLIC_API_URL}/permissions`,
+            `${NEXT_PUBLIC_API_URL}/permissions${req.nextUrl.search}`,
         );
 
         return NextResponse.json(response.data);

@@ -33,7 +33,9 @@ const allowedOrigins = [
   "http://localhost:8081",
   "https://2661-158-140-164-79.ngrok-free.app",
   "http://192.168.18.234:8081",
-  "http://192.168.18.234:3000"
+  "http://192.168.18.234:3000",
+  "http://absensi.qubit-group.com",
+  "https://absensi.qubit-group.com",
 ];
 
 app.use(

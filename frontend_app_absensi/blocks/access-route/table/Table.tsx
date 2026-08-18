@@ -70,7 +70,7 @@ export default function TableBranch() {
                 setLoading(true);
 
                 const res = await fetch(
-                    `${NEXT_PUBLIC_API_URL}/departments?search=${debouncedSearch}&page=${currentPage}&limit=${itemsPerPage}`,
+                    `/api/departments?search=${debouncedSearch}&page=${currentPage}&limit=${itemsPerPage}`,
                     {
                         signal: controller.signal,
                     }

@@ -69,7 +69,7 @@ export default function TableShift() {
                 setLoading(true);
 
                 const res = await fetch(
-                    `${NEXT_PUBLIC_API_URL}/shifts?search=${debouncedSearch}&page=${currentPage}&limit=${itemsPerPage}`,
+                    `/api/shifts?search=${debouncedSearch}&page=${currentPage}&limit=${itemsPerPage}`,
                     { signal: controller.signal }
                 );
 

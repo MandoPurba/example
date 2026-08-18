@@ -19,7 +19,7 @@ export const GET = auth(async (...args: [any, { params: any; }]) => {
         // }
 
         const response = await axios.get(
-            `${NEXT_PUBLIC_API_URL}/branches`,
+            `${NEXT_PUBLIC_API_URL}/branches${req.nextUrl.search}`,
         );
 
         return NextResponse.json(response.data);

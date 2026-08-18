@@ -1,7 +1,16 @@
 import { auth } from "@/libs/auth";
 import { NextResponse } from "next/server";
 
+// Origin publik dari header proxy (tunnel), bukan req.url yg bisa localhost:3000
+function publicOrigin(req: any) {
+  const host =
+    req.headers.get("x-forwarded-host") || req.headers.get("host");
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  return host ? `${proto}://${host}` : req.nextUrl.origin;
+}
+
 export default auth(async (req) => {
+  const origin = publicOrigin(req);
   const { pathname } = req.nextUrl;
   const session = req.auth;
   console.log("session", session)
@@ -26,7 +35,7 @@ export default auth(async (req) => {
 
   // Belum login
   if (isProtected && !session) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
+    return NextResponse.redirect(new URL("/sign-in", origin));
   }
 
   if (isProtected && session?.user?.department_id) {
@@ -42,7 +51,7 @@ export default auth(async (req) => {
       );
 
       if (!response.ok) {
-        return NextResponse.redirect(new URL("/", req.url));
+        return NextResponse.redirect(new URL("/", origin));
       }
 
       const result = await response.json();
@@ -75,19 +84,19 @@ export default auth(async (req) => {
         console.log("isAllowed", isAllowed)
         console.log("allowedRoutes", allowedRoutes)
         return NextResponse.redirect(
-          new URL(allowedRoutes[0])
+          new URL(allowedRoutes[0], origin)
         );
       }
     } catch (err) {
       console.error(err);
 
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/", origin));
     }
   }
 
   // Sudah login tapi membuka halaman login
   if (pathname === "/sign-in" && session) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/", origin));
   }
 
   return NextResponse.next();

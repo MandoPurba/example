@@ -13,16 +13,12 @@ export default function Page() {
 
     const routes = selectedAccessRouteDepartments.frontend_access_routes || []
 
-    // Default landing = DASHBOARD (/insight) bila user punya aksesnya,
-    // lalu /home, baru menu pertama yang punya path.
+    // Admin (punya /insight) -> dashboard. Selain itu SELALU ke /home
+    // (jangan auto ke /absensi).
     const target =
-      routes.find((r: any) => r?.path === "/insight")?.path ||
-      routes.find((r: any) => r?.path === "/home")?.path ||
-      routes.find((r: any) => r?.path)?.path
+      routes.find((r: any) => r?.path === "/insight")?.path || "/home"
 
-    if (target) {
-      router.replace(target)
-    }
+    router.replace(target)
   }, [selectedAccessRouteDepartments, router])
 
   return null

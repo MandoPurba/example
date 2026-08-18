@@ -182,5 +182,6 @@ def register():
 # ======================
 if __name__ == "__main__":
     # host="0.0.0.0" wajib agar bisa diakses container lain (bridge network).
-    # Default Flask bind ke 127.0.0.1 -> ECONNREFUSED dari service lain.
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    # use_reloader=False: reloader Flask debug tidak stabil di Docker detached
+    # (container bisa Exit 0 sendiri -> "ENOTFOUND py" dari service lain).
+    app.run(host="0.0.0.0", port=8000, debug=True, use_reloader=False)

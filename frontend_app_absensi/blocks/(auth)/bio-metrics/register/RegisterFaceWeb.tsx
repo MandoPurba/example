@@ -152,7 +152,8 @@ export default function RegisterFaceWeb() {
 
   function handleBack() {
     stopCamera();
-    router.back()
+    // navigasi in-app relatif (bukan router.back yg bisa ke history localhost:3000)
+    router.push("/")
   }
 
   if (permission === false) {

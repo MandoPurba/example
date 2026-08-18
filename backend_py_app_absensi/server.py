@@ -181,4 +181,6 @@ def register():
 # RUN SERVER
 # ======================
 if __name__ == "__main__":
-    app.run(port=8000, debug=True)
+    # host="0.0.0.0" wajib agar bisa diakses container lain (bridge network).
+    # Default Flask bind ke 127.0.0.1 -> ECONNREFUSED dari service lain.
+    app.run(host="0.0.0.0", port=8000, debug=True)

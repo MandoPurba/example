@@ -26,7 +26,7 @@ module.exports = {
     const now = new Date();
     await queryInterface.bulkInsert('frontend_route', [
       { id: FR_HOME,          name: "Home",            icon: "Home",     path: "/home",                          sort: 1,  createdAt: now, updatedAt: now },
-      { id: FR_DASHBOARD,     name: "Admin Dashboard", icon: "Grid2x2",  path: "/",                              sort: 2,  createdAt: now, updatedAt: now },
+      { id: FR_DASHBOARD,     name: "Admin Dashboard", icon: "Grid2x2",  path: "/insight",                       sort: 2,  createdAt: now, updatedAt: now },
       { id: FR_ABSENSI,       name: "Absensi",         icon: "Fingerprint", path: "/absensi",                    sort: 4,  createdAt: now, updatedAt: now },
       { id: FR_REGISTER_FACE, name: "Register Face",   icon: "ScanFace", path: "/bio-metrics/face-recognition",  sort: 5,  createdAt: now, updatedAt: now },
       { id: FR_MASTER,        name: "Master",          icon: "Box",      path: null,                             sort: 6,  createdAt: now, updatedAt: now },

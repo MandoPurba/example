@@ -14,10 +14,10 @@ RUN npm install && npm install sequelize-cli
 
 # Copy source
 COPY . .
-RUN chmod +x docker-entrypoint.sh
 
 # Port aplikasi (lihat .env: PORT=8001)
 EXPOSE 8001
 
-# Saat start: migrate -> seed (hanya jika DB kosong) -> jalankan server
-CMD ["sh", "docker-entrypoint.sh"]
+# Migrate + seed dijalankan oleh Postgres via db/init.sql saat init DB
+# (lihat docker-compose.yml). Backend cukup menjalankan server.
+CMD ["node", "server.js"]

@@ -16,10 +16,11 @@ export default function UserDropdown() {
   const handleLogout = async () => {
     setIsLoggingOut(true)
     try {
-      await signOut({
-      callbackUrl: "/",
-    });
+      // redirect:false -> jangan biarkan NextAuth redirect ke NEXTAUTH_URL
+      // (localhost:3000). Arahkan manual ke origin saat ini (tunnel).
+      await signOut({ redirect: false });
       toast.success("Logout Successful!");
+      window.location.href = "/";
     } catch (error) {
       toast.error("Logout Failed");
     } finally {

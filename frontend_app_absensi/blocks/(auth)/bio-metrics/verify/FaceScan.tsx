@@ -149,8 +149,8 @@ export default function VerifyFaceWeb() {
 
   function handleBack() {
     stopCamera();
-    // navigasi in-app relatif (bukan router.back yg bisa ke history localhost:3000)
-    router.push("/absensi")
+    // kembali ke home (bukan /absensi yg justru render kamera lagi -> stuck)
+    router.push("/home")
   }
   if (permission === false) {
     return (

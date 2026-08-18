@@ -14,9 +14,10 @@ RUN npm install && npm install sequelize-cli
 
 # Copy source
 COPY . .
+RUN chmod +x docker-entrypoint.sh
 
 # Port aplikasi (lihat .env: PORT=8001)
 EXPOSE 8001
 
-# Saat start: migrate -> seed (diabaikan jika data sudah ada) -> jalankan server
-CMD ["sh", "-c", "npx sequelize-cli db:migrate && (npx sequelize-cli db:seed:all || echo 'seed dilewati (data mungkin sudah ada)') && node server.js"]
+# Saat start: migrate -> seed (hanya jika DB kosong) -> jalankan server
+CMD ["sh", "docker-entrypoint.sh"]

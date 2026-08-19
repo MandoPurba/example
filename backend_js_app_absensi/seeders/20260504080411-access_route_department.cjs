@@ -5,6 +5,9 @@ const { v4: uuidv4 } = require('uuid');
 // frontend_route_id, subitem_frontend_route_id) memakai UUID STATIS.
 
 const DEPT_ADMIN = 'f830a281-1fa0-4382-8a61-477296ac5444';
+const DEPT_IT = '08b06c68-3aeb-451c-91be-d59fdd5faf40';
+// Department yang punya SEMUA akses menu
+const FULL_ACCESS_DEPTS = [DEPT_ADMIN, DEPT_IT];
 
 // frontend_route (UUID STATIS, samakan dgn seeder frontend_route)
 const FR = {
@@ -42,24 +45,29 @@ module.exports = {
     ];
     const subItems = [SI.BRANCH, SI.SHIFT, SI.DEPARTMENT];
 
-    const rows = [
-      ...topLevel.map((frontend_route_id) => ({
-        id: uuidv4(),
-        department_id: DEPT_ADMIN,
-        frontend_route_id,
-        subitem_frontend_route_id: null,
-        createdAt: now,
-        updatedAt: now,
-      })),
-      ...subItems.map((subitem_frontend_route_id) => ({
-        id: uuidv4(),
-        department_id: DEPT_ADMIN,
-        frontend_route_id: null,
-        subitem_frontend_route_id,
-        createdAt: now,
-        updatedAt: now,
-      })),
-    ];
+    const rows = [];
+    for (const deptId of FULL_ACCESS_DEPTS) {
+      for (const frontend_route_id of topLevel) {
+        rows.push({
+          id: uuidv4(),
+          department_id: deptId,
+          frontend_route_id,
+          subitem_frontend_route_id: null,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+      for (const subitem_frontend_route_id of subItems) {
+        rows.push({
+          id: uuidv4(),
+          department_id: deptId,
+          frontend_route_id: null,
+          subitem_frontend_route_id,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+    }
 
     await queryInterface.bulkInsert('access_route_department', rows, {});
   },

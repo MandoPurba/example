@@ -20,9 +20,15 @@ type Row = {
 
 export default function Table() {
   const now = new Date()
-  const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+  const MONTHS = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+  ]
+  const YEARS = Array.from({ length: 6 }, (_, i) => now.getFullYear() - 4 + i)
 
-  const [month, setMonth] = useState(defaultMonth)
+  const [year, setYear] = useState(now.getFullYear())
+  const [monthNum, setMonthNum] = useState(now.getMonth() + 1) // 1-12
+  const month = `${year}-${String(monthNum).padStart(2, "0")}`
   const [department, setDepartment] = useState("")
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([])
   const [rows, setRows] = useState<Row[]>([])
@@ -78,12 +84,24 @@ export default function Table() {
               <option key={d.id} value={d.id}>{d.name}</option>
             ))}
           </select>
-          <input
-            type="month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
+          <select
+            value={monthNum}
+            onChange={(e) => setMonthNum(Number(e.target.value))}
             className="rounded border px-3 py-2 text-sm"
-          />
+          >
+            {MONTHS.map((m, i) => (
+              <option key={i} value={i + 1}>{m}</option>
+            ))}
+          </select>
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            className="rounded border px-3 py-2 text-sm"
+          >
+            {YEARS.map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
       </div>
 

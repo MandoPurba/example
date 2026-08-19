@@ -21,7 +21,7 @@ import Department from '../../models/department.model.js';
 ========================= */
 export const getMonthlyAttendance = async (req, res) => {
   try {
-    const { month } = req.query; // format "YYYY-MM"; default bulan ini
+    const { month, department_id } = req.query; // month "YYYY-MM"; default bulan ini
     const base =
       typeof month === 'string' && /^\d{4}-\d{2}$/.test(month)
         ? moment(month, 'YYYY-MM')
@@ -29,14 +29,21 @@ export const getMonthlyAttendance = async (req, res) => {
     const start = base.clone().startOf('month').format('YYYY-MM-DD');
     const end = base.clone().endOf('month').format('YYYY-MM-DD');
 
+    // Filter department (opsional)
+    const profileInclude = {
+      model: UserProfile,
+      as: 'user_profile',
+      attributes: ['name', 'email', 'department_id'],
+      include: [{ model: Department, as: 'department', attributes: ['id', 'name'] }],
+    };
+    if (department_id) {
+      profileInclude.where = { department_id };
+      profileInclude.required = true; // hanya user di department itu
+    }
+
     const users = await User.findAll({
       attributes: ['id', 'username'],
-      include: [{
-        model: UserProfile,
-        as: 'user_profile',
-        attributes: ['name', 'email'],
-        include: [{ model: Department, as: 'department', attributes: ['id', 'name'] }],
-      }],
+      include: [profileInclude],
     });
 
     const attendances = await Attendance.findAll({

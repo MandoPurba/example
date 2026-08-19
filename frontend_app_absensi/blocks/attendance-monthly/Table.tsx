@@ -23,20 +23,34 @@ export default function Table() {
   const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
 
   const [month, setMonth] = useState(defaultMonth)
+  const [department, setDepartment] = useState("")
+  const [departments, setDepartments] = useState<{ id: string; name: string }[]>([])
   const [rows, setRows] = useState<Row[]>([])
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
 
+  // ambil daftar department untuk filter
+  useEffect(() => {
+    let active = true
+    axios
+      .get(`/api/departments`)
+      .then((res) => { if (active) setDepartments(res.data?.data || []) })
+      .catch(() => { if (active) setDepartments([]) })
+    return () => { active = false }
+  }, [])
+
   useEffect(() => {
     let active = true
     setLoading(true)
+    const params = new URLSearchParams({ month })
+    if (department) params.set("department_id", department)
     axios
-      .get(`/api/attendances/monthly?month=${month}`)
+      .get(`/api/attendances/monthly?${params.toString()}`)
       .then((res) => { if (active) setRows(res.data?.data || []) })
       .catch(() => { if (active) setRows([]) })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
-  }, [month])
+  }, [month, department])
 
   const fmtTime = (d: string | null) =>
     d
@@ -53,12 +67,24 @@ export default function Table() {
     <div className="rounded-lg bg-white p-4">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-gray-500">Data absensi seluruh karyawan per bulan</p>
-        <input
-          type="month"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          className="rounded border px-3 py-2 text-sm"
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+            className="rounded border px-3 py-2 text-sm"
+          >
+            <option value="">Semua Department</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
+            ))}
+          </select>
+          <input
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            className="rounded border px-3 py-2 text-sm"
+          />
+        </div>
       </div>
 
       {loading ? (

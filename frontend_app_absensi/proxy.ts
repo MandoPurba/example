@@ -27,6 +27,7 @@ export default auth(async (req) => {
     /^\/absensi(\/.*)?$/,
     /^\/bio-metrics(\/.*)?$/,
     /^\/attendance-history(\/.*)?$/,
+    /^\/attendance-monthly(\/.*)?$/,
   ];
 
   const isProtected = protectedPaths.some((route) =>

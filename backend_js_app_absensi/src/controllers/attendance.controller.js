@@ -14,6 +14,74 @@ import {
   calculateDistance
 } from '../utils/all.js';
 import UserProfile from '../../models/user_profile.model.js';
+import Department from '../../models/department.model.js';
+
+/* =========================
+   GET MONTHLY (semua user) - untuk admin
+========================= */
+export const getMonthlyAttendance = async (req, res) => {
+  try {
+    const { month } = req.query; // format "YYYY-MM"; default bulan ini
+    const base =
+      typeof month === 'string' && /^\d{4}-\d{2}$/.test(month)
+        ? moment(month, 'YYYY-MM')
+        : moment();
+    const start = base.clone().startOf('month').format('YYYY-MM-DD');
+    const end = base.clone().endOf('month').format('YYYY-MM-DD');
+
+    const users = await User.findAll({
+      attributes: ['id', 'username'],
+      include: [{
+        model: UserProfile,
+        as: 'user_profile',
+        attributes: ['name', 'email'],
+        include: [{ model: Department, as: 'department', attributes: ['id', 'name'] }],
+      }],
+    });
+
+    const attendances = await Attendance.findAll({
+      where: { workDate: { [Op.between]: [start, end] } },
+      order: [['workDate', 'ASC'], ['checkIn', 'ASC']],
+    });
+
+    const byUser = {};
+    for (const a of attendances) {
+      if (!byUser[a.user_id]) byUser[a.user_id] = [];
+      byUser[a.user_id].push({
+        workDate: a.workDate,
+        checkIn: a.checkIn,
+        checkOut: a.checkOut,
+        status: a.status,
+      });
+    }
+
+    const data = users.map((u) => {
+      const records = byUser[u.id] || [];
+      const present = records.filter((r) => r.checkIn).length;
+      const late = records.filter(
+        (r) => String(r.status || '').toLowerCase() === 'late'
+      ).length;
+      return {
+        userId: u.id,
+        username: u.username,
+        name: u.user_profile?.name || u.username,
+        department: u.user_profile?.department?.name || '-',
+        records,
+        summary: { total: records.length, present, late },
+      };
+    });
+
+    return res.json({
+      success: true,
+      month: base.format('YYYY-MM'),
+      daysInMonth: base.daysInMonth(),
+      data,
+    });
+  } catch (err) {
+    console.error('getMonthlyAttendance error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
 
 /* =========================
    GET ALL

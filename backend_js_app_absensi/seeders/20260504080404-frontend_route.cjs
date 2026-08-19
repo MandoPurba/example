@@ -19,6 +19,7 @@ const FR_MESSAGE = '70868673-9ead-42f2-82f6-4603de088a92';
 const FR_USERS = '1b0e390e-e791-4d03-9950-da2c84b1e667';
 const FR_ACCESS = 'a491bda1-5869-4012-92d2-c276fc2ec912';
 const FR_PERMISSION = '9a8b6f39-5f30-4511-8821-812fdec659c9';
+const FR_ABSENSI_BULANAN = '90e0b423-9b6d-4635-8c0a-e039a938b93a';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -38,6 +39,7 @@ module.exports = {
       { id: FR_USERS,         name: "Users",           icon: "User",     path: "/users",                         sort: 12, createdAt: now, updatedAt: now },
       { id: FR_ACCESS,        name: "Access Route",    icon: "ClosedCaption", path: "/access-route",             sort: 13, createdAt: now, updatedAt: now },
       { id: FR_PERMISSION,    name: "Permission",      icon: "NotebookPen",   path: "/home/permission",          sort: 14, createdAt: now, updatedAt: now },
+      { id: FR_ABSENSI_BULANAN, name: "Absensi Bulanan", icon: "CalendarDays", path: "/attendance-monthly",       sort: 15, createdAt: now, updatedAt: now },
     ], {});
   },
 

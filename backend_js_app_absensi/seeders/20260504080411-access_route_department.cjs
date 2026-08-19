@@ -20,6 +20,7 @@ const FR = {
   USERS: '1b0e390e-e791-4d03-9950-da2c84b1e667',
   ACCESS: 'a491bda1-5869-4012-92d2-c276fc2ec912',
   PERMISSION: '9a8b6f39-5f30-4511-8821-812fdec659c9',
+  ABSENSI_BULANAN: '90e0b423-9b6d-4635-8c0a-e039a938b93a',
 };
 
 // subitem_frontend_route (UUID STATIS) -> submenu "Master"
@@ -37,7 +38,7 @@ module.exports = {
     const topLevel = [
       FR.DASHBOARD, FR.HOME, FR.ABSENSI, FR.REGISTER_FACE, FR.ATTENDANCE,
       FR.HISTORY, FR.EMPLOYEE, FR.NOTIFICATION, FR.MESSAGE, FR.USERS,
-      FR.ACCESS, FR.PERMISSION,
+      FR.ACCESS, FR.PERMISSION, FR.ABSENSI_BULANAN,
     ];
     const subItems = [SI.BRANCH, SI.SHIFT, SI.DEPARTMENT];
 
